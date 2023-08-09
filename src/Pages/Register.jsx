@@ -2,7 +2,9 @@ import React from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import backendinstance from "../Axios/axios";
+import { useNavigate } from "react-router-dom";
 const Register = () => {
+  const navigate = useNavigate();
   const validation = yup.object().shape({
     username: yup
       .string()
@@ -27,7 +29,11 @@ const Register = () => {
       } else {
         delete values.confirmpassword;
         console.log(values);
-        await backendinstance.post("/register", values);
+        const res = await backendinstance.post("/register", values);
+        if (res) {
+          formdata.resetForm();
+          navigate("/");
+        }
       }
     },
     validationSchema: validation,
