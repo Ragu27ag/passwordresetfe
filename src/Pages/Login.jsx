@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import backendinstance from "../Axios/axios";
 import { Link, useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [load, setLoad] = useState(false);
+
   const validation = yup.object().shape({
     email: yup.string().email().required("enter the email"),
     password: yup.string().required("enter the password"),
@@ -17,14 +20,23 @@ const Login = () => {
       password: "",
     },
     onSubmit: async (values) => {
-      const res = await backendinstance.post("/login", values);
-      if (res.data === "Invalid Credentials") {
-        alert(res.data);
-      } else {
-        console.log(res.data);
-        localStorage.setItem("token", res.data.tok);
-        loginform.resetForm();
-        navigate("/suc");
+      try {
+        setLoad(true);
+
+        const res = await backendinstance.post("/login", values);
+        if (res.data === "Invalid Credentials") {
+          setLoad(false);
+
+          alert(res.data);
+        } else {
+          console.log(res.data);
+          localStorage.setItem("token", res.data.tok);
+          loginform.resetForm();
+          navigate("/suc");
+        }
+      } catch (error) {
+        setLoad(false);
+        throw new Error(error);
       }
     },
     validationSchema: validation,
@@ -91,7 +103,7 @@ const Login = () => {
           )}
           <br />
           <br />
-          <input
+          <button
             style={{
               borderRadius: "8px",
               backgroundColor: "#5454fe",
@@ -99,7 +111,13 @@ const Login = () => {
               color: "white",
             }}
             type="submit"
-          />
+          >
+            {load ? (
+              <CircularProgress size="15px" style={{ color: "white" }} />
+            ) : (
+              "Login"
+            )}
+          </button>
           &nbsp;&nbsp;&nbsp;
           <Link style={{ textDecoration: "none" }} to="/forgot">
             Forgot Password?

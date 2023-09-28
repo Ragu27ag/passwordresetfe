@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import backendinstance from "../Axios/axios.js";
 import { useNavigate } from "react-router-dom";
 
+import CircularProgress from "@mui/material/CircularProgress";
+
 const Verify = () => {
   const [token, setToken] = useState("");
+  const [load, setLoad] = useState(false);
+
   const navigate = useNavigate();
 
   console.log("tok", token);
@@ -16,16 +20,22 @@ const Verify = () => {
   }, [token, navigate]);
 
   const handlesubmit = async () => {
-    const mail = localStorage.getItem("mail");
+    try {
+      setLoad(true);
+      const mail = localStorage.getItem("mail");
 
-    // console.log(mail);
-    const verotp = { email: mail, otp: document.getElementById("otp").value };
-    const res = await backendinstance.post("/verify/comp", verotp);
-    console.log(res);
-    if (res.data === "done") {
-      navigate("/res");
-    } else {
-      alert("Enter the valid OTP");
+      // console.log(mail);
+      const verotp = { email: mail, otp: document.getElementById("otp").value };
+      const res = await backendinstance.post("/verify/comp", verotp);
+      console.log(res);
+      if (res.data === "done") {
+        navigate("/res");
+      } else {
+        setLoad(false);
+        alert("Enter the valid OTP");
+      }
+    } catch (error) {
+      throw new Error(error);
     }
   };
   return (
@@ -63,7 +73,11 @@ const Verify = () => {
           }}
           onClick={handlesubmit}
         >
-          Verify
+          {load ? (
+            <CircularProgress size="14px" sx={{ color: "white" }} />
+          ) : (
+            " verify "
+          )}
         </button>
       </div>
     </div>

@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import backendinstance from "../Axios/axios";
 import { useNavigate } from "react-router-dom";
 
+import CircularProgress from "@mui/material/CircularProgress";
+
 const Reset = () => {
   const navigate = useNavigate();
   const [token, setToken] = useState("");
+
+  const [load, setLoad] = useState(false);
 
   console.log("tok", token);
 
@@ -15,22 +19,27 @@ const Reset = () => {
     }
   }, [token, navigate]);
   const handleCreate = async () => {
-    const password = document.getElementById("pass").value;
-    const conpassword = document.getElementById("conpass").value;
-    const mail = localStorage.getItem("mail");
-    const data = {
-      email: mail,
-      pass: password,
-    };
-    if (password !== conpassword) {
-      alert("Passwords does not match");
-    } else {
-      const res = await backendinstance.post("/reset", data);
-      if (res.data === "updated successfully") {
-        localStorage.removeItem("mail");
-        localStorage.removeItem("vertok");
-        navigate("/");
+    try {
+      setLoad(true);
+      const password = document.getElementById("pass").value;
+      const conpassword = document.getElementById("conpass").value;
+      const mail = localStorage.getItem("mail");
+      const data = {
+        email: mail,
+        pass: password,
+      };
+      if (password !== conpassword) {
+        alert("Passwords does not match");
+      } else {
+        const res = await backendinstance.post("/reset", data);
+        if (res.data === "updated successfully") {
+          localStorage.removeItem("mail");
+          localStorage.removeItem("vertok");
+          navigate("/");
+        }
       }
+    } catch (error) {
+      throw new Error(error);
     }
   };
   return (
@@ -72,7 +81,11 @@ const Reset = () => {
           }}
           onClick={handleCreate}
         >
-          Create
+          {load ? (
+            <CircularProgress size="14px" sx={{ color: "white" }} />
+          ) : (
+            "Create "
+          )}
         </button>
       </div>
     </div>

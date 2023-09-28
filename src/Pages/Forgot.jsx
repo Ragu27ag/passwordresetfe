@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import backendinstance from "../Axios/axios";
 import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const Forgot = () => {
   const navigate = useNavigate();
+  const [load, setLoad] = useState(false);
 
   const handlesubmit = async () => {
+    setLoad(true);
     const mail = document.getElementById("email").value;
     localStorage.setItem("mail", mail);
     const obj = {
@@ -53,7 +56,11 @@ const Forgot = () => {
             }}
             onClick={handlesubmit}
           >
-            send OTP
+            {load ? (
+              <CircularProgress size="14px" sx={{ color: "white" }} />
+            ) : (
+              " send OTP "
+            )}
           </button>
         </>
       </div>
